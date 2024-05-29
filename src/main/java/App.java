@@ -1,67 +1,33 @@
+import goit.client.Client;
+import goit.client.ClientService;
+import goit.client.IncorrectLengthException;
 import goit.database.Database;
-import goit.database.DatabasePopulateService;
-import goit.database.DatabaseQueryService;
-import goit.pojo.*;
 
 import java.sql.Connection;
-import java.time.LocalDate;
 import java.util.List;
 
 public class App {
     public static void main(String[] args) {
 
         Connection connection = Database.getConnection();
+        ClientService clientService = new ClientService(connection);
 
-        DatabasePopulateService dbPopulateService = new DatabasePopulateService(connection);
+        List<Client> clients = clientService.listAll();
+        clients.forEach(System.out::println);
 
-        Worker newWorker = new Worker(
-                "Mark Manson",
-                LocalDate.now().minusYears(33),
-                "Middle",
-                3500
-        );
+        try {
+            clientService.create("Heart of Darkness Inc.");
+            clientService.setName(3, "Sarif Industries");
+        } catch (IncorrectLengthException e) {
+            e.printStackTrace();
+        }
 
-        dbPopulateService.insertWorker(newWorker);
-        System.out.println("newWorker = " + newWorker);
+        clientService.deleteById(2L);
 
+        String client = clientService.getById(6);
+        System.out.println("client = " + client);
 
-        Client newClient = new Client("Magnum Inc.");
-        dbPopulateService.insertClient(newClient);
-        System.out.println("newClient = " + newClient);
-
-        Project newProject = new Project(
-                6,
-                "Project X",
-                LocalDate.now().minusMonths(7),
-                LocalDate.now());
-        dbPopulateService.insertProject(newProject);
-        System.out.println("newProject = " + newProject);
-
-        ProjectToWorkersRelation projectToWorkerRelation = new ProjectToWorkersRelation(
-                11,
-                new long[]{11, 10, 9}
-        );
-        dbPopulateService.insertProjectToWorkerRelation(projectToWorkerRelation);
-        System.out.println("projectToWorkerRelation = " + projectToWorkerRelation);
-
-        DatabaseQueryService dbQueryService = new DatabaseQueryService(connection);
-
-        List<LongestProject> longestProjectList = dbQueryService.findLongestProject();
-        longestProjectList.forEach(System.out::println);
-
-        List<MaxSalaryWorker> maxSalaryWorkerList = dbQueryService.findMaxSalaryWorker();
-        maxSalaryWorkerList.forEach(System.out::println);
-
-        List<MaxProjectsClient> maxProjectsClientList = dbQueryService.findMaxProjectsClient();
-        maxProjectsClientList.forEach(System.out::println);
-
-        List<EldestWorker> eldestWorkerList = dbQueryService.findEldestWorker();
-        eldestWorkerList.forEach(System.out::println);
-
-        List<YoungestWorker> youngestWorkerList = dbQueryService.findYoungestWorker();
-        youngestWorkerList.forEach(System.out::println);
-
-        List<ProjectPrice> projectPriceList = dbQueryService.getProjectPrices();
-        projectPriceList.forEach(System.out::println);
+        clients = clientService.listAll();
+        clients.forEach(System.out::println);
     }
 }
